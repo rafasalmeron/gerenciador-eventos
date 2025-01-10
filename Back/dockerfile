@@ -1,13 +1,42 @@
 # Fase de construção
-FROM maven:3.9.0-openjdk-17 AS builder
+FROM maven:3.8.7-openjdk-17 AS builder
+
+# Configurar variáveis de ambiente para Maven
+ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+
 WORKDIR /app
+
+# Copiar somente arquivos essenciais para instalação de dependências
 COPY pom.xml ./
+
+# Usar cache para dependências Maven
+RUN mvn dependency:go-offline -B
+
+# Copiar o restante do código-fonte
 COPY src ./src
+
+# Compilar o projeto e gerar o JAR
 RUN mvn clean package -DskipTests
 
 # Fase final
 FROM openjdk:17-jdk-slim
+
+# Criar um usuário não root para maior segurança
+RUN useradd -m -s /bin/bash appuser
+
 WORKDIR /app
+
+# Copiar o JAR gerado na fase de construção
 COPY --from=builder /app/target/gerenciador_eventos-0.0.1-SNAPSHOT.jar app.jar
+
+# Alterar o proprietário dos arquivos para o usuário não root
+RUN chown -R appuser:appuser /app
+
+# Trocar para o usuário não root
+USER appuser
+
+# Expor a porta onde a aplicação será executada
 EXPOSE 9000
+
+# Comando para iniciar a aplicação
 CMD ["java", "-jar", "app.jar"]
