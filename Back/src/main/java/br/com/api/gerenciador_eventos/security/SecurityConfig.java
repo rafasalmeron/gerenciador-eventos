@@ -42,18 +42,18 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
+    @Override
     public void addCorsMappings(CorsRegistry registry) {
-    registry.addMapping("/**")
-            .allowedOrigins(
-                "https://gerenciador-eventos-gamma.vercel.app", // Origem do Vercel (Web)
-                "http://localhost:3000", // Origem do Web local (React Web Dev)
-                "http://localhost:8081", // Origem padrão do React Native no Android
-                "http://10.0.2.2:8081", // Para emuladores Android (React Native)
-                "http://192.168.1.x:8081" // Endereço IP da sua máquina (React Native)
-            )
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-            .allowedHeaders("*")
-            .allowCredentials(true);
+        registry.addMapping("/**")
+                .allowedOrigins(
+                    "https://gerenciador-eventos-gamma.vercel.app",
+                    "http://localhost:3000",
+                    "http://localhost:8081",
+                    "http://10.0.2.2:8081",
+                    "http://192.168.1.x:8081"
+                )
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 }
