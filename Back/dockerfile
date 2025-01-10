@@ -1,5 +1,5 @@
 # Fase de construção
-FROM maven:3.8.7-openjdk-17 AS builder
+FROM maven:latest AS builder
 
 # Configurar variáveis de ambiente para Maven
 ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
