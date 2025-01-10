@@ -27,8 +27,11 @@ RUN ./mvnw clean package -DskipTests
 # Verificar se o arquivo .jar foi gerado no diretório target
 RUN ls -l ./target
 
+# Copiar o arquivo .jar para o diretório de trabalho atual
+COPY ./target/gerenciador-eventos-0.0.1-SNAPSHOT.jar app.jar
+
 # Expor a porta onde o app vai rodar
 EXPOSE 9000
 
 # Definir o comando para rodar o .jar
-CMD ["java", "-jar", "./target/gerenciador-eventos-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "app.jar"]
