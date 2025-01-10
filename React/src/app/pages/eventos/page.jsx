@@ -18,23 +18,20 @@ const EventosPage = () => {
         admin: { id: null }
     });
 
-    const token = localStorage.getItem('token');
-
     useEffect(() => {
-        if (token) {
-            try {
-                const decoded = jwtDecode(token);
-                console.log(decoded);
-                setNovoEvento((prevState) => ({
-                    ...prevState,
-                    admin: { id: decoded.id },
-                }));
-            } catch (error) {
-                console.error("Erro ao decodificar o token:", error);
-                addToast("Erro ao processar o token.", "error");
+        if (typeof window !== 'undefined') {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const decoded = jwtDecode(token);
+                    setNovoEvento((prevState) => ({...prevState, admin: {id: decoded.id},}));
+                } catch (error) {
+                    console.error("Erro ao decodificar o token:", error);
+                    addToast("Erro ao processar o token.", "error");
+                }
             }
         }
-    }, [token]);
+    }, []);
 
     console.log(novoEvento);
 
