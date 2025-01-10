@@ -1,0 +1,80 @@
+# Frontend (React)
+# Ignorar dependências e builds do React
+/React/node_modules/
+React/.pnp
+React/.pnp.*
+React/yarn/*
+!React/yarn/patches
+!React/yarn/plugins
+!React/yarn/releases
+!React/yarn/versions
+/React/.next/
+/React/out/
+/React/build/
+
+# Testing
+/React/coverage
+
+# Miscellaneous
+/React/.DS_Store
+/React/*.pem
+/React/npm-debug.log*
+/React/yarn-debug.log*
+/React/yarn-error.log*
+/React.pnpm-debug.log*
+
+# Environment Files (React)
+/React/.env*
+
+# Vercel (se necessário para o React)
+/React/.vercel/
+
+# Backend (Spring Boot)
+# Ignorar dependências e configurações específicas do backend
+/Back/target/
+/Back/.mvn/wrapper/maven-wrapper.jar
+/Back/**/src/main/**/target/
+/Back/**/src/test/**/target/
+
+# IDE Configs (para o backend)
+# Ignorar arquivos de configuração do IDE (STS, IntelliJ, NetBeans, VS Code)
+# STS (Spring Tool Suite)
+Back/.apt_generated
+Back/.classpath
+Back/.factorypath
+Back/.project
+Back/.settings
+Back/.springBeans
+Back/.sts4-cache
+
+# IntelliJ IDEA
+/Back/.idea
+/Back/*.iws
+/Back/*.iml
+/Back/*.ipr
+
+# NetBeans
+/Back/nbproject/private/
+/Back/nbbuild/
+/Back/dist/
+/Back/nbdist/
+/Back/.nb-gradle/
+/Back/build/
+/Back/**/src/main/**/build/
+/Back/**/src/test/**/build/
+
+# VS Code
+/Back/.vscode/
+
+# Miscellaneous (Backend)
+# Ignorar arquivos que não devem ser versionados
+/Back/.DS_Store
+/Back/*.pem
+/Back/npm-debug.log*
+/Back/yarn-debug.log*
+/Back/yarn-error.log*
+/Back.pnpm-debug.log*
+
+# Environment Files (Backend)
+# Ignorar arquivos de variáveis de ambiente
+/Back/.env*
