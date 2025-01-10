@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:9000'
+    baseURL: 'https://gerenciador-eventos-7q10.onrender.com'
 });
 
 api.interceptors.request.use((config) => {
