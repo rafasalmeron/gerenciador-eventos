@@ -1,23 +1,28 @@
+# Usar a imagem base do OpenJDK
 FROM openjdk:11-jdk-slim
 
 # Definir o diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copiar o pom.xml e fazer o download das dependências
+# Copiar o arquivo pom.xml para o diretório de trabalho
 COPY pom.xml .
 
+# Baixar as dependências necessárias para o Maven
 RUN mvn dependency:go-offline
 
-# Copiar o código fonte
+# Copiar o código fonte para o container
 COPY src /app/src
 
-# Rodar o Maven para construir o projeto e gerar o arquivo .jar
+# Executar o Maven para gerar o arquivo .jar
 RUN mvn clean package
 
-# Copiar o .jar para dentro do container
+# Verificar se o arquivo .jar foi gerado no diretório target
+RUN ls -l /app/target
+
+# Copiar o .jar gerado para o diretório de destino no container
 COPY target/gerenciador-eventos-0.0.1-SNAPSHOT.jar /app
 
-# Expôr a porta
+# Expor a porta onde o app vai rodar
 EXPOSE 9000
 
 # Definir o comando para rodar o .jar
