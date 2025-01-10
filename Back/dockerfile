@@ -1,14 +1,24 @@
-# Use an official OpenJDK runtime as a parent image
 FROM openjdk:11-jdk-slim
 
-# Set the working directory in the container
+# Definir o diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copy the local code to the container
+# Copiar o pom.xml e fazer o download das dependências
+COPY pom.xml .
+
+RUN mvn dependency:go-offline
+
+# Copiar o código fonte
+COPY src /app/src
+
+# Rodar o Maven para construir o projeto e gerar o arquivo .jar
+RUN mvn clean package
+
+# Copiar o .jar para dentro do container
 COPY target/gerenciador-eventos-0.0.1-SNAPSHOT.jar /app
 
-# Make port 9000 available to the world outside this container
+# Expôr a porta
 EXPOSE 9000
 
-# Run the Spring Boot application
-ENTRYPOINT ["java", "-jar", "gerenciador-eventos-0.0.1-SNAPSHOT.jar"]
+# Definir o comando para rodar o .jar
+CMD ["java", "-jar", "gerenciador-eventos-0.0.1-SNAPSHOT.jar"]
