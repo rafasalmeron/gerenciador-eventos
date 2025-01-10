@@ -1,5 +1,5 @@
-# Usar a imagem base do OpenJDK
-FROM openjdk:11-jdk-slim
+# Usar a imagem base do OpenJDK 17
+FROM openjdk:17-jdk-slim
 
 # Instalar Maven
 RUN apt-get update && apt-get install -y maven
@@ -24,11 +24,8 @@ RUN ./mvnw clean package
 # Verificar se o arquivo .jar foi gerado no diretório target
 RUN ls -l ./target
 
-# Copiar o .jar gerado para o diretório de destino no container
-COPY ./target/gerenciador-eventos-0.0.1-SNAPSHOT.jar /app
-
 # Expor a porta onde o app vai rodar
 EXPOSE 9000
 
 # Definir o comando para rodar o .jar
-CMD ["java", "-jar", "/app/gerenciador-eventos-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "./target/gerenciador-eventos-0.0.1-SNAPSHOT.jar"]
