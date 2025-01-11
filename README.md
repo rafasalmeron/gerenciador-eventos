@@ -37,7 +37,7 @@ Antes de começar, você precisa garantir que tenha as seguintes ferramentas ins
 cd React
 ```
 
-Passo 2: Instale as dependências
+### Passo 2: Instale as dependências
 Se você estiver usando Yarn:
 ```
 yarn install
@@ -48,7 +48,7 @@ Ou, se você estiver usando npm:
 npm install
 ```
 
-Passo 3: Rode o projeto
+### Passo 3: Rode o projeto
 Se você estiver usando Yarn:
 
 ```
@@ -61,30 +61,30 @@ npm run dev
 ```
 Isso iniciará o servidor de desenvolvimento do React. O frontend estará disponível em http://localhost:3000.
 
-2. Rodando o Backend (Spring Boot)
-Passo 1: Acesse a pasta do Backend
+## 2. Rodando o Backend (Spring Boot)
+### Passo 1: Acesse a pasta do Backend
 
 ```
 cd Back
 ```
-Passo 2: Instale as dependências
+### Passo 2: Instale as dependências
 Se você ainda não tiver as dependências instaladas, execute:
 ```
 mvn clean install
 ```
-Passo 3: Rode o projeto
+### Passo 3: Rode o projeto
 Para rodar o backend com o Maven:
 ```
 mvn spring-boot:run
 ```
 O servidor backend estará rodando em http://localhost:9000.
 
-3. Rodando o Mobile (React Native)
-Passo 1: Acesse a pasta do Mobile
+## 3. Rodando o Mobile (React Native)
+### Passo 1: Acesse a pasta do Mobile
 ```
 cd Native
 ```
-Passo 2: Instale as dependências
+### Passo 2: Instale as dependências
 Se você estiver usando Yarn:
 
 ```
@@ -95,11 +95,11 @@ Ou, se você estiver usando npm:
 ```
 npm install
 ```
-Passo 3: Inicie o ambiente de desenvolvimento
+### Passo 3: Inicie o ambiente de desenvolvimento
 Para rodar o aplicativo no emulador Android ou dispositivo físico, execute:
 
 ```
-npx react-native run-android
+npx expo start
 ```
 Certifique-se de que o Android Studio esteja instalado e o emulador esteja rodando ou que você tenha um dispositivo físico conectado.
 
