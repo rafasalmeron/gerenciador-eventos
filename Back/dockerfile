@@ -1,18 +1,15 @@
 # Fase de construção
 FROM maven:latest AS builder
 
-# Configurar variáveis de ambiente para Maven
-ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
-
 WORKDIR /app
 
-# Copiar somente arquivos essenciais para instalação de dependências
+# Copiar o arquivo pom.xml para baixar as dependências
 COPY pom.xml ./
 
-# Usar cache para dependências Maven
+# Fazer download das dependências Maven
 RUN mvn dependency:go-offline -B
 
-# Copiar o restante do código-fonte
+# Copiar o código-fonte completo
 COPY src ./src
 
 # Compilar o projeto e gerar o JAR
@@ -27,7 +24,7 @@ RUN useradd -m -s /bin/bash appuser
 WORKDIR /app
 
 # Copiar o JAR gerado na fase de construção
-COPY --from=builder /app/target/gerenciador_eventos-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/target/*.jar app.jar
 
 # Alterar o proprietário dos arquivos para o usuário não root
 RUN chown -R appuser:appuser /app
