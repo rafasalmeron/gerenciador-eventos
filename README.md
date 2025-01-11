@@ -99,7 +99,7 @@ Passo 3: Inicie o ambiente de desenvolvimento
 Para rodar o aplicativo no emulador Android ou dispositivo físico, execute:
 
 ```
-npx react-native run-android
+npx expo start
 ```
 Certifique-se de que o Android Studio esteja instalado e o emulador esteja rodando ou que você tenha um dispositivo físico conectado.
 
