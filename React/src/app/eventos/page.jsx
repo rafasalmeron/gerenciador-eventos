@@ -1,20 +1,21 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useToast } from '@/context/ToastContext';
 import api from "@/service/api";
 import { jwtDecode } from "jwt-decode";
+import {useAuth} from "@/context/AuthContext";
 
 const EventosPage = () => {
     const [eventos, setEventos] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [eventoEmEdicao, setEventoEmEdicao] = useState(null);
     const { addToast } = useToast();
+    const { userInfo } = useAuth();
     const [novoEvento, setNovoEvento] = useState({
         nome: '',
         data: '',
-        locallizacao: '',
-        imagem: '',
+        localizacao: '',
+        imagem: null,
         admin: { id: null }
     });
 
@@ -24,7 +25,10 @@ const EventosPage = () => {
             if (token) {
                 try {
                     const decoded = jwtDecode(token);
-                    setNovoEvento((prevState) => ({...prevState, admin: {id: decoded.id},}));
+                    setNovoEvento((prevState) => ({
+                        ...prevState,
+                        admin: { id: decoded.id },
+                    }));
                 } catch (error) {
                     console.error("Erro ao decodificar o token:", error);
                     addToast("Erro ao processar o token.", "error");
@@ -32,8 +36,6 @@ const EventosPage = () => {
             }
         }
     }, []);
-
-    console.log(novoEvento);
 
     const fetchEventos = async () => {
         try {
@@ -45,12 +47,16 @@ const EventosPage = () => {
     };
 
     const handleAddEvento = async () => {
-        const eventoFormatado = {
-            ...novoEvento,
-            data: novoEvento.data.split('-').reverse().join('/'),
-        };
+        const formData = new FormData();
+        formData.append('nome', novoEvento.nome);
+        formData.append('data', novoEvento.data.split('-').reverse().join('/'));
+        formData.append('localizacao', novoEvento.localizacao);
+        formData.append('admin.id', novoEvento.admin.id);
+        if (novoEvento.imagem) {
+            formData.append('file', novoEvento.imagem);
+        }
         try {
-            await api.post('/eventos', eventoFormatado);
+            await api.post('/eventos', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
             addToast('Evento criado com sucesso!', 'success');
             setShowModal(false);
             fetchEventos();
@@ -60,12 +66,16 @@ const EventosPage = () => {
     };
 
     const handleEditEvento = async () => {
-        const eventoFormatado = {
-            ...novoEvento,
-            data: novoEvento.data.split('-').reverse().join('/'),
-        };
+        const formData = new FormData();
+        formData.append('nome', novoEvento.nome);
+        formData.append('data', novoEvento.data.split('-').reverse().join('/'));
+        formData.append('localizacao', novoEvento.localizacao);
+        formData.append('admin.id', novoEvento.admin.id);
+        if (novoEvento.imagem) {
+            formData.append('file', novoEvento.imagem);
+        }
         try {
-            await api.put(`/eventos/${eventoEmEdicao.id}`, eventoFormatado);
+            await api.put(`/eventos/${eventoEmEdicao.id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
             addToast('Evento editado com sucesso!', 'success');
             setShowModal(false);
             setEventoEmEdicao(null);
@@ -90,9 +100,9 @@ const EventosPage = () => {
         setNovoEvento({
             nome: evento.nome,
             data: evento.data.split('/').reverse().join('-'),
-            locallizacao: evento.locallizacao,
-            imagem: evento.imagem,
-            admin: evento.admin,
+            localizacao: evento.localizacao,
+            imagem: null,
+            admin: evento.admin.nome,
         });
         setShowModal(true);
     };
@@ -100,6 +110,16 @@ const EventosPage = () => {
     useEffect(() => {
         fetchEventos();
     }, []);
+
+    const getImageSrc = (imagemBase64) => {
+        const supportedFormats = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/gif'];
+        for (const format of supportedFormats) {
+            if (imagemBase64.includes(format.split('/')[1])) {
+                return `data:${format};base64,${imagemBase64}`;
+            }
+        }
+        return `data:image/png;base64,${imagemBase64}`;
+    };
 
     return (
         <div className="p-6">
@@ -112,12 +132,12 @@ const EventosPage = () => {
                     setNovoEvento({
                         nome: '',
                         data: '',
-                        locallizacao: '',
-                        imagem: '',
+                        localizacao: '',
+                        imagem: null,
                         admin: {
                             id: novoEvento.admin.id
                         }
-                    })
+                    });
                     setShowModal(true);
                 }}
                 >
@@ -132,14 +152,14 @@ const EventosPage = () => {
                         className="border rounded-md p-4 shadow hover:shadow-lg"
                     >
                         <img
-                            src={evento.imagem}
+                            src={getImageSrc(evento.imagem)}
                             alt={evento.nome}
                             className="w-full h-48 object-cover rounded-md"
                         />
                         <h2 className="text-lg font-bold mt-2">{evento.nome}</h2>
                         <p>Data: {evento.data}</p>
-                        <p>Localização: {evento.locallizacao}</p>
-                        <span>Criado por: <strong>{evento.admin.nome}</strong></span>
+                        <p>Localização: {evento.localizacao}</p>
+                        <span>Criado por: <strong>{userInfo.nome}</strong></span>
                         <div className="flex justify-between mt-4">
                             <button
                                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-red-600"
@@ -158,65 +178,61 @@ const EventosPage = () => {
                 ))}
             </div>
 
-            {
-                showModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white p-6 rounded-md shadow-md w-96">
-                            <h2 className="text-lg font-bold mb-4">{eventoEmEdicao ? 'Editar Evento' : 'Novo Evento'}</h2>
-                            <input
-                                type="text"
-                                placeholder="Nome do Evento"
-                                className="w-full mb-2 p-2 border rounded"
-                                value={novoEvento.nome}
-                                onChange={(e) =>
-                                    setNovoEvento({...novoEvento, nome: e.target.value})
-                                }
-                                disabled={!!eventoEmEdicao}
-                            />
-                            <input
-                                type="date"
-                                placeholder="Data"
-                                className="w-full mb-2 p-2 border rounded"
-                                value={novoEvento.data}
-                                onChange={(e) =>
-                                    setNovoEvento({...novoEvento, data: e.target.value})
-                                }
-                            />
-                            <input
-                                type="text"
-                                placeholder="Localização"
-                                className="w-full mb-2 p-2 border rounded"
-                                value={novoEvento.locallizacao}
-                                onChange={(e) =>
-                                    setNovoEvento({...novoEvento, locallizacao: e.target.value})
-                                }
-                            />
-                            <input
-                                type="text"
-                                placeholder="URL da Imagem"
-                                className="w-full mb-2 p-2 border rounded"
-                                value={novoEvento.imagem}
-                                onChange={(e) =>
-                                    setNovoEvento({...novoEvento, imagem: e.target.value})
-                                }
-                                disabled={!!eventoEmEdicao}
-                            />
-                            <div className="flex justify-between mt-4">
-                                <button
-                                    className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-                                    onClick={() => setShowModal(false)}
-                                >
-                                    Cancelar
-                                </button>
-                                <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                        onClick={eventoEmEdicao ? handleEditEvento : handleAddEvento}>
-                                    {eventoEmEdicao ? 'Salvar Alterações' : 'Salvar'}
-                                </button>
-                            </div>
+            {showModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-md shadow-md w-96">
+                        <h2 className="text-lg font-bold mb-4">{eventoEmEdicao ? 'Editar Evento' : 'Novo Evento'}</h2>
+                        <input
+                            type="text"
+                            placeholder="Nome do Evento"
+                            className="w-full mb-2 p-2 border rounded"
+                            value={novoEvento.nome}
+                            onChange={(e) =>
+                                setNovoEvento({ ...novoEvento, nome: e.target.value })
+                            }
+                            disabled={!!eventoEmEdicao}
+                        />
+                        <input
+                            type="date"
+                            placeholder="Data"
+                            className="w-full mb-2 p-2 border rounded"
+                            value={novoEvento.data}
+                            onChange={(e) =>
+                                setNovoEvento({ ...novoEvento, data: e.target.value })
+                            }
+                        />
+                        <input
+                            type="text"
+                            placeholder="Localização"
+                            className="w-full mb-2 p-2 border rounded"
+                            value={novoEvento.localizacao}
+                            onChange={(e) =>
+                                setNovoEvento({ ...novoEvento, localizacao: e.target.value })
+                            }
+                        />
+                        <input
+                            type="file"
+                            placeholder="Imagem"
+                            className="w-full mb-2 p-2 border rounded"
+                            onChange={(e) =>
+                                setNovoEvento({ ...novoEvento, imagem: e.target.files[0] })
+                            }
+                        />
+                        <div className="flex justify-between mt-4">
+                            <button
+                                className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+                                onClick={() => setShowModal(false)}
+                            >
+                                Cancelar
+                            </button>
+                            <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                    onClick={eventoEmEdicao ? handleEditEvento : handleAddEvento}>
+                                {eventoEmEdicao ? 'Salvar Alterações' : 'Salvar'}
+                            </button>
                         </div>
                     </div>
-                )
-            }
+                </div>
+            )}
         </div>
     );
 };

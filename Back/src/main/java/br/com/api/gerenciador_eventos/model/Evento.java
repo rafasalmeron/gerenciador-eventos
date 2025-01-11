@@ -7,30 +7,22 @@ public class Evento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String nome;
+
     @Column(nullable = false)
     private String data;
+
     @Column(nullable = false)
-    private String locallizacao;
-    @Column(nullable = false)
-    private String imagem;
+    private String localizacao;
+
+    @Lob
+    private byte[] imagem;
 
     @ManyToOne
     @JoinColumn(name = "admin_id", nullable = false)
     private Admin admin;
-
-    public Evento() {
-    }
-
-    public Evento(Long id, String nome, String data, String locallizacao, String imagem, Admin admin) {
-        this.id = id;
-        this.nome = nome;
-        this.data = data;
-        this.locallizacao = locallizacao;
-        this.imagem = imagem;
-        this.admin = admin;
-    }
 
     public Long getId() {
         return id;
@@ -56,19 +48,19 @@ public class Evento {
         this.data = data;
     }
 
-    public String getLocallizacao() {
-        return locallizacao;
+    public String getLocalizacao() {
+        return localizacao;
     }
 
-    public void setLocallizacao(String locallizacao) {
-        this.locallizacao = locallizacao;
+    public void setLocalizacao(String localizacao) {
+        this.localizacao = localizacao;
     }
 
-    public String getImagem() {
+    public byte[] getImagem() {
         return imagem;
     }
 
-    public void setImagem(String imagem) {
+    public void setImagem(byte[] imagem) {
         this.imagem = imagem;
     }
 

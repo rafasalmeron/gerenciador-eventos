@@ -1,11 +1,13 @@
 package br.com.api.gerenciador_eventos.controller;
 
+import br.com.api.gerenciador_eventos.dto.EventoDTO;
 import br.com.api.gerenciador_eventos.model.Evento;
 import br.com.api.gerenciador_eventos.service.EventoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,15 +19,20 @@ public class EventoController {
     private EventoService eventoService;
 
     @PostMapping
-    public ResponseEntity<Evento> criarEvento(@RequestBody Evento evento) {
-        Evento novoEvento = eventoService.criarEvento(evento);
+    public ResponseEntity<Evento> criarEvento(
+            @ModelAttribute Evento evento,
+            @RequestParam("file") MultipartFile file) throws IOException {
+        Evento novoEvento = eventoService.criarEvento(evento, file);
         return ResponseEntity.ok(novoEvento);
     }
 
     @GetMapping
-    public ResponseEntity<List<Evento>> listarEventos() {
+    public ResponseEntity<List<EventoDTO>> listarEventos() {
         List<Evento> eventos = eventoService.listarEventos();
-        return ResponseEntity.ok(eventos);
+        List<EventoDTO> eventosDTO = eventos.stream()
+                .map(EventoDTO::new)
+                .toList();
+        return ResponseEntity.ok(eventosDTO);
     }
 
     @GetMapping("/{id}")
@@ -36,8 +43,11 @@ public class EventoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Evento> atualizarEvento(@PathVariable Long id, @RequestBody Evento evento) {
-        Evento eventoAtualizado = eventoService.atualizarEvento(id, evento);
+    public ResponseEntity<Evento> atualizarEvento(
+            @PathVariable Long id,
+            @ModelAttribute Evento evento,
+            @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+        Evento eventoAtualizado = eventoService.atualizarEvento(id, evento, file);
         return ResponseEntity.ok(eventoAtualizado);
     }
 
