@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -23,12 +24,13 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/login",
-                                "/cadastro",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/v2/api-docs/**",
                                 "/swagger-resources/**",
-                                "/swagger-ui/**")
+                                "/webjars/**",
+                                "/login",
+                                "/cadastro"
+                                )
                         .permitAll()
                         .anyRequest().authenticated()
                 )
@@ -49,8 +51,14 @@ public class SecurityConfig implements WebMvcConfigurer {
                         "https://gerenciador-eventos-gamma.vercel.app",
                         "http://localhost:3000",
                         "http://localhost:8081",
+                        "http://localhost:9000",
+                        "http://localhost:9001",
+                        "http://localhost:9010",
                         "http://10.0.2.2:8081",
-                        "http://192.168.1.x:8081"
+                        "http://192.168.1.x:8081",
+                        "http://192.168.1.x:9010",
+                        "http://192.168.1.x:9000",
+                        "http://192.168.1.x:9001"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")

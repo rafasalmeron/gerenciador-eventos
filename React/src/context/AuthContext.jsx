@@ -15,27 +15,27 @@ export const AuthProvider = ({ children }) => {
         const token = localStorage.getItem('token');
         if (token) {
             setIsAuthenticated(true);
-            const decodedToken = jwtDecode(token);
-            fetchUserInfo(decodedToken.sub);
+            //const decodedToken = jwtDecode(token);
+            //fetchUserInfo(decodedToken.sub);
         }
     }, []);
 
-    const fetchUserInfo = async (email) => {
-        try {
-            const response = await api.get(`/admins/${email}`);
-
-            if (response.status === 200) {
-                const data = response.data;
-                localStorage.setItem('userInfo', JSON.stringify(data));
-                setUserInfo(data);
-            } else {
-                throw new Error('Erro ao buscar informações do usuário');
-            }
-        } catch (error) {
-            console.error('Erro ao buscar informações do usuário:', error);
-            addToast(error.message, 'error');
-        }
-    };
+    // const fetchUserInfo = async (email) => {
+    //     try {
+    //         const response = await api.get(`/admins/${email}`);
+    //
+    //         if (response.status === 200) {
+    //             const data = response.data;
+    //             localStorage.setItem('userInfo', JSON.stringify(data));
+    //             setUserInfo(data);
+    //         } else {
+    //             throw new Error('Erro ao buscar informações do usuário');
+    //         }
+    //     } catch (error) {
+    //         console.error('Erro ao buscar informações do usuário:', error);
+    //         addToast(error.message, 'error');
+    //     }
+    // };
 
     const login = (token) => {
         localStorage.setItem('token', token);
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true);
 
         const decodedToken = jwtDecode(token);
-        fetchUserInfo(decodedToken.sub);
+        //fetchUserInfo(decodedToken.sub);
     };
 
     const logout = () => {

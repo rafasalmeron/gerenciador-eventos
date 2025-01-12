@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import api from "@/service/api";
 import {useToast} from "@/context/ToastContext";
+import LoadingButton from "@/components/loadingButton/LoadingButton";
 
 const Cadastro = ({setActiveTab}) => {
     const [nome, setNome] = useState('');
@@ -81,14 +82,7 @@ const Cadastro = ({setActiveTab}) => {
                     placeholder="••••••••"
                 />
             </div>
-
-            <button
-                type="submit"
-                disabled={loading}
-                className={`w-full py-2 px-4 text-white rounded-md ${loading ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'}`}
-            >
-                {loading ? 'Cadastrando...' : 'Cadastrar'}
-            </button>
+            <LoadingButton loading={loading} load="Cadastrando..." away="Cadastrar" color='bg-blue' />
         </form>
     );
 };

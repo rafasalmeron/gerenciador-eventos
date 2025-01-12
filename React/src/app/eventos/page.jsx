@@ -4,11 +4,15 @@ import { useToast } from '@/context/ToastContext';
 import api from "@/service/api";
 import { jwtDecode } from "jwt-decode";
 import {useAuth} from "@/context/AuthContext";
+import EventosList from "@/components/listaEventos/ListaEventos";
+import LoadingButton from "@/components/loadingButton/LoadingButton";
 
 const EventosPage = () => {
     const [eventos, setEventos] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [eventoEmEdicao, setEventoEmEdicao] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [buttonLoading, setButtonLoading] = useState(false);
     const { addToast } = useToast();
     const { userInfo } = useAuth();
     const [novoEvento, setNovoEvento] = useState({
@@ -40,13 +44,21 @@ const EventosPage = () => {
     const fetchEventos = async () => {
         try {
             const response = await api.get('/eventos');
-            setEventos(response.data);
+            if (response && response.data) {
+                setEventos(response.data);
+            } else {
+                setEventos([]);
+            }
+            setLoading(false);
         } catch (error) {
-            addToast('Erro ao carregar eventos.', 'error');
+            console.error('Carregando API ou Erro ao buscar eventos:', error);
+            setEventos([]);
+            setLoading(false);
         }
     };
 
     const handleAddEvento = async () => {
+        setButtonLoading(true);
         const formData = new FormData();
         formData.append('nome', novoEvento.nome);
         formData.append('data', novoEvento.data.split('-').reverse().join('/'));
@@ -59,36 +71,41 @@ const EventosPage = () => {
             await api.post('/eventos', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
             addToast('Evento criado com sucesso!', 'success');
             setShowModal(false);
+            setLoading(true);
             fetchEventos();
         } catch (error) {
             addToast('Erro ao criar evento.', 'error');
+        } finally {
+            setButtonLoading(false);
         }
     };
 
     const handleEditEvento = async () => {
+        setButtonLoading(true);
         const formData = new FormData();
-        formData.append('nome', novoEvento.nome);
         formData.append('data', novoEvento.data.split('-').reverse().join('/'));
         formData.append('localizacao', novoEvento.localizacao);
         formData.append('admin.id', novoEvento.admin.id);
-        if (novoEvento.imagem) {
-            formData.append('file', novoEvento.imagem);
-        }
         try {
             await api.put(`/eventos/${eventoEmEdicao.id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
             addToast('Evento editado com sucesso!', 'success');
             setShowModal(false);
             setEventoEmEdicao(null);
+            setLoading(true);
             fetchEventos();
         } catch (error) {
             addToast('Erro ao editar evento.', 'error');
+        } finally {
+            setButtonLoading(false);
         }
     };
 
     const handleDeleteEvento = async (id) => {
+        setButtonLoading(true);
         try {
             await api.delete(`/eventos/${id}`);
             addToast('Evento excluído com sucesso!', 'success');
+            setLoading(true);
             fetchEventos();
         } catch (error) {
             addToast('Erro ao excluir evento.', 'error');
@@ -102,7 +119,7 @@ const EventosPage = () => {
             data: evento.data.split('/').reverse().join('-'),
             localizacao: evento.localizacao,
             imagem: null,
-            admin: evento.admin.nome,
+            admin: { id: novoEvento.admin.id }
         });
         setShowModal(true);
     };
@@ -123,60 +140,45 @@ const EventosPage = () => {
 
     return (
         <div className="p-6">
-            <h1 className="text-3xl font-bold mb-4 text-center text-gray-900">Eventos</h1>
-
-            <div className="w-full flex justify-center items-center text-center flex-col">
-                <h2>Adicione um novo Evento</h2>
-                <button className="max-w-96 mt-6 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 m-2" onClick={() => {
-                    setEventoEmEdicao(null);
-                    setNovoEvento({
-                        nome: '',
-                        data: '',
-                        localizacao: '',
-                        imagem: null,
-                        admin: {
-                            id: novoEvento.admin.id
-                        }
-                    });
-                    setShowModal(true);
-                }}
+            <div
+                className=" mb-5 w-full flex justify-center items-center text-center flex-col bg-gray-800 shadow-md p-6 rounded-lg">
+                <h1 className="text-3xl font-bold mb-4 text-center text-white">Eventos</h1>
+                <div className="flex items-center justify-center mb-4">
+                    <svg className="w-8 h-8 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <h2 className="text-2xl font-bold text-white">Adicione um novo Evento</h2>
+                </div>
+                <p className="text-gray-400 mb-4">Preencha as informações do novo evento para adicioná-lo à lista.</p>
+                <button
+                    className="max-w-96 mt-6 bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out m-2"
+                    onClick={() => {
+                        setEventoEmEdicao(null);
+                        setNovoEvento({
+                            nome: '',
+                            data: '',
+                            localizacao: '',
+                            imagem: null,
+                            admin: {
+                                id: novoEvento.admin.id
+                            }
+                        });
+                        setShowModal(true);
+                    }}
                 >
                     Adicionar Evento
                 </button>
             </div>
 
-            <div className="m grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {eventos.map((evento) => (
-                    <div
-                        key={evento.id}
-                        className="border rounded-md p-4 shadow hover:shadow-lg"
-                    >
-                        <img
-                            src={getImageSrc(evento.imagem)}
-                            alt={evento.nome}
-                            className="w-full h-48 object-cover rounded-md"
-                        />
-                        <h2 className="text-lg font-bold mt-2">{evento.nome}</h2>
-                        <p>Data: {evento.data}</p>
-                        <p>Localização: {evento.localizacao}</p>
-                        <span>Criado por: <strong>{userInfo.nome}</strong></span>
-                        <div className="flex justify-between mt-4">
-                            <button
-                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                                onClick={() => openEditModal(evento)}
-                            >
-                                Editar
-                            </button>
-                            <button
-                                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                                onClick={() => handleDeleteEvento(evento.id)}
-                            >
-                                Excluir
-                            </button>
-                        </div>
-                    </div>
-                ))}
-            </div>
+            <EventosList
+                eventos={eventos}
+                loading={loading}
+                userInfo={userInfo}
+                openEditModal={openEditModal}
+                handleDeleteEvento={handleDeleteEvento}
+                getImageSrc={getImageSrc}
+            />
 
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -188,7 +190,7 @@ const EventosPage = () => {
                             className="w-full mb-2 p-2 border rounded"
                             value={novoEvento.nome}
                             onChange={(e) =>
-                                setNovoEvento({ ...novoEvento, nome: e.target.value })
+                                setNovoEvento({...novoEvento, nome: e.target.value})
                             }
                             disabled={!!eventoEmEdicao}
                         />
@@ -198,7 +200,7 @@ const EventosPage = () => {
                             className="w-full mb-2 p-2 border rounded"
                             value={novoEvento.data}
                             onChange={(e) =>
-                                setNovoEvento({ ...novoEvento, data: e.target.value })
+                                setNovoEvento({...novoEvento, data: e.target.value})
                             }
                         />
                         <input
@@ -207,16 +209,16 @@ const EventosPage = () => {
                             className="w-full mb-2 p-2 border rounded"
                             value={novoEvento.localizacao}
                             onChange={(e) =>
-                                setNovoEvento({ ...novoEvento, localizacao: e.target.value })
+                                setNovoEvento({...novoEvento, localizacao: e.target.value})
                             }
                         />
                         <input
                             type="file"
-                            placeholder="Imagem"
                             className="w-full mb-2 p-2 border rounded"
                             onChange={(e) =>
-                                setNovoEvento({ ...novoEvento, imagem: e.target.files[0] })
+                                setNovoEvento({...novoEvento, imagem: e.target.files[0]})
                             }
+                            disabled={!!eventoEmEdicao}
                         />
                         <div className="flex justify-between mt-4">
                             <button
@@ -225,10 +227,15 @@ const EventosPage = () => {
                             >
                                 Cancelar
                             </button>
-                            <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                    onClick={eventoEmEdicao ? handleEditEvento : handleAddEvento}>
-                                {eventoEmEdicao ? 'Salvar Alterações' : 'Salvar'}
-                            </button>
+                            <div>
+                                <LoadingButton
+                                    loading={buttonLoading}
+                                    load="Salvando..."
+                                    away={eventoEmEdicao ? 'Salvar Alterações' : 'Salvar'}
+                                    onClick={eventoEmEdicao ? handleEditEvento : handleAddEvento}
+                                    color='bg-blue'
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

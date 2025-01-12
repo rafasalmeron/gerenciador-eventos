@@ -1,15 +1,17 @@
 import { NextResponse } from 'next/server';
 
 export function middleware(req) {
-    const token = req.cookies.get('token');
+    const token = req.cookies.get('authToken');
+    const url = req.nextUrl.clone();
 
-    if (!token && !req.nextUrl.pathname.startsWith('/auth') && !req.nextUrl.pathname.startsWith('/404')) {
-        return NextResponse.redirect(new URL('/auth', req.url));
+    if (token && url.pathname === '/login') {
+        url.pathname = '/';
+        return NextResponse.redirect(url);
     }
 
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ['/', '/eventos'],
+    matcher: ['/login', '/cadastro'],
 };

@@ -2,6 +2,8 @@ package br.com.api.gerenciador_eventos.model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 public class Admin {
     @Id
@@ -14,6 +16,9 @@ public class Admin {
     @Column(nullable = false)
     private String senha;
 
+    @OneToMany(mappedBy = "admin")
+    private List<Evento> eventos;
+
     public Admin() {
     }
 
@@ -22,6 +27,14 @@ public class Admin {
         this.nome = nome;
         this.email = email;
         this.senha = senha;
+    }
+
+    public List<Evento> getEventos() {
+        return eventos;
+    }
+
+    public void setEventos(List<Evento> eventos) {
+        this.eventos = eventos;
     }
 
     public Long getId() {

@@ -1,12 +1,15 @@
 package br.com.api.gerenciador_eventos.service;
 
+import br.com.api.gerenciador_eventos.dto.EventoDTO;
 import br.com.api.gerenciador_eventos.model.Evento;
 import br.com.api.gerenciador_eventos.repository.EventoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EventoService {
@@ -28,8 +31,10 @@ public class EventoService {
         return eventoRepository.save(evento);
     }
 
-    public List<Evento> listarEventos() {
-        return eventoRepository.findAll();
+    public List<EventoDTO> listarEventos() {
+        return eventoRepository.findAll().stream()
+                .map(EventoDTO::new)
+                .collect(Collectors.toList());
     }
 
     public Optional<Evento> buscarEventoPorId(Long id) {
@@ -40,13 +45,11 @@ public class EventoService {
         Evento evento = eventoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Evento não encontrado!"));
 
-        evento.setNome(eventoAtualizado.getNome());
         evento.setData(eventoAtualizado.getData());
         evento.setLocalizacao(eventoAtualizado.getLocalizacao());
+
         if (file != null && !file.isEmpty()) {
             evento.setImagem(file.getBytes());
-        } else {
-            evento.setImagem(evento.getImagem());
         }
 
         return eventoRepository.save(evento);

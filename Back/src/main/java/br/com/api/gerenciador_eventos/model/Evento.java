@@ -3,6 +3,7 @@ package br.com.api.gerenciador_eventos.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "evento")
 public class Evento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

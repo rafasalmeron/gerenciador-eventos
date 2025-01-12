@@ -8,8 +8,10 @@ public class EventoDTO {
     private String nome;
     private String data;
     private String localizacao;
-    private String imagem; // Em Base64
+    private String imagem;
     private Long adminId;
+    private String adminNome;
+    private String adminEmail;
 
     public EventoDTO() {
     }
@@ -20,7 +22,32 @@ public class EventoDTO {
         this.data = evento.getData();
         this.localizacao = evento.getLocalizacao();
         this.imagem = evento.getImagem() != null ? Base64.getEncoder().encodeToString(evento.getImagem()) : null;
-        this.adminId = evento.getAdmin().getId();
+
+        if (evento.getAdmin() != null) {
+            this.adminId = evento.getAdmin().getId();
+            this.adminNome = evento.getAdmin().getNome();
+            this.adminEmail = evento.getAdmin().getEmail();
+        } else {
+            this.adminId = null;
+            this.adminNome = null;
+            this.adminEmail = null;
+        }
+    }
+
+    public String getAdminNome() {
+        return adminNome;
+    }
+
+    public void setAdminNome(String adminNome) {
+        this.adminNome = adminNome;
+    }
+
+    public String getAdminEmail() {
+        return adminEmail;
+    }
+
+    public void setAdminEmail(String adminEmail) {
+        this.adminEmail = adminEmail;
     }
 
     public Long getId() {

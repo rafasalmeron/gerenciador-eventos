@@ -4,13 +4,14 @@ import { useRouter } from 'next/navigation';
 import api from '@/service/api';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import LoadingButton from "@/components/loadingButton/LoadingButton";
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const { login, isAuthenticated } = useAuth();
     const { addToast } = useToast();
     const router = useRouter();
 
@@ -46,6 +47,12 @@ const Login = () => {
             setRememberMe(true);
         }
     }, []);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            router.push('/');
+        }
+    }, [isAuthenticated, router]);
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -90,14 +97,7 @@ const Login = () => {
                 </div>
                 <a href="#" className="text-sm text-blue-600 hover:underline dark:text-blue-500">Esqueceu a senha?</a>
             </div>
-
-            <button
-                type="submit"
-                disabled={loading}
-                className={`w-full py-2 px-4 text-white rounded-md ${loading ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'}`}
-            >
-                {loading ? 'Entrando...' : 'Entrar'}
-            </button>
+            <LoadingButton loading={loading} load="Carregando..." away="Entrar" color='bg-blue' />
         </form>
     );
 };

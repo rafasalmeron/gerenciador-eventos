@@ -28,11 +28,8 @@ public class EventoController {
 
     @GetMapping
     public ResponseEntity<List<EventoDTO>> listarEventos() {
-        List<Evento> eventos = eventoService.listarEventos();
-        List<EventoDTO> eventosDTO = eventos.stream()
-                .map(EventoDTO::new)
-                .toList();
-        return ResponseEntity.ok(eventosDTO);
+        List<EventoDTO> eventos = eventoService.listarEventos();
+        return ResponseEntity.ok(eventos);
     }
 
     @GetMapping("/{id}")
