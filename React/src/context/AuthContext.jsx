@@ -35,8 +35,6 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(false);
             router.push('/auth');
         }
-
-        setLoading(false);
     }, [router]);
 
     // const fetchUserInfo = async (email) => {
