@@ -82,7 +82,9 @@ const Cadastro = ({setActiveTab}) => {
                     placeholder="••••••••"
                 />
             </div>
-            <LoadingButton loading={loading} load="Cadastrando..." away="Cadastrar" color='bg-blue' />
+            <LoadingButton loading={loading} load="Cadastrando..." away="Cadastrar" 
+                color='bg-gradient-to-r from-blue-600 to-blue-800'
+                />
         </form>
     );
 };
