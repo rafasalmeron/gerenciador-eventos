@@ -233,7 +233,7 @@ const EventosPage = () => {
                                     load="Salvando..."
                                     away={eventoEmEdicao ? 'Salvar Alterações' : 'Salvar'}
                                     onClick={eventoEmEdicao ? handleEditEvento : handleAddEvento}
-                                    color='bg-blue'
+                                    color='bg-gradient-to-r from-blue-600 to-blue-800'
                                 />
                             </div>
                         </div>
