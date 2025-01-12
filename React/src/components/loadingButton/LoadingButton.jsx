@@ -7,7 +7,7 @@ const LoadingButton = ({loading, load, away, onClick, color}) => {
             className={`w-full py-2 px-4 text-white rounded-md flex items-center justify-center ${
                 loading ?
                     'bg-gray-400 cursor-not-allowed' :
-                    `${color}-500 hover:${color}-600`
+                    `${color}`
             }`}
             onClick={onClick}
         >
