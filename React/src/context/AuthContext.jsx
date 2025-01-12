@@ -15,15 +15,29 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
+
         if (token) {
-            setIsAuthenticated(true);
-            //const decodedToken = jwtDecode(token);
-            //fetchUserInfo(decodedToken.sub);
+            try {
+                const decodedToken = jwtDecode(token);
+
+                if (decodedToken.exp * 1000 < Date.now()) {
+                    logout();
+                    return;
+                }
+
+                setIsAuthenticated(true);
+                setUserInfo(JSON.parse(localStorage.getItem('userInfo')));
+            } catch (error) {
+                console.error('Token inválido:', error);
+                logout();
+            }
+        } else {
+            setIsAuthenticated(false);
+            router.push('/auth');
         }
-        if (!isAuthenticated) {
-            router.push('/auth')
-        }
-    }, [isAuthenticated]);
+
+        setLoading(false);
+    }, [router]);
 
     // const fetchUserInfo = async (email) => {
     //     try {
