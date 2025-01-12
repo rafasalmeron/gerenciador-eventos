@@ -1,5 +1,6 @@
 'use client'
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 import { useToast } from "@/context/ToastContext";
 import api from "@/service/api";
@@ -9,6 +10,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userInfo, setUserInfo] = useState(null);
+    const router = useRouter();
     const { addToast } = useToast();
 
     useEffect(() => {
@@ -18,7 +20,10 @@ export const AuthProvider = ({ children }) => {
             //const decodedToken = jwtDecode(token);
             //fetchUserInfo(decodedToken.sub);
         }
-    }, []);
+        if (!isAuthenticated) {
+            router.push('/auth')
+        }
+    }, [isAuthenticated]);
 
     // const fetchUserInfo = async (email) => {
     //     try {
