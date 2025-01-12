@@ -24,7 +24,7 @@ const ConfirmDeleteModal = ({ isOpen, onRequestClose, onConfirm, loading }) => {
                         load="Excluindo..."
                         away="Excluir"
                         onClick={onConfirm}
-                        color="bg-red"
+                        color="bg-red-600"
                     />
                 </div>
             </div>
