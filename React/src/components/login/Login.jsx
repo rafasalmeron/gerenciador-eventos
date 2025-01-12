@@ -97,7 +97,9 @@ const Login = () => {
                 </div>
                 <a href="#" className="text-sm text-blue-600 hover:underline dark:text-blue-500">Esqueceu a senha?</a>
             </div>
-            <LoadingButton loading={loading} load="Carregando..." away="Entrar" color='bg-blue' />
+            <LoadingButton loading={loading} load="Carregando..." away="Entrar" 
+                color='bg-gradient-to-r from-blue-600 to-blue-800'
+                />
         </form>
     );
 };
