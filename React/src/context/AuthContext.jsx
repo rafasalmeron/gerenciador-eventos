@@ -26,7 +26,6 @@ export const AuthProvider = ({ children }) => {
                 }
 
                 setIsAuthenticated(true);
-                setUserInfo(JSON.parse(localStorage.getItem('userInfo')));
             } catch (error) {
                 console.error('Token inválido:', error);
                 logout();
@@ -58,17 +57,12 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', token);
         document.cookie = `token=${token}; path=/;`;
         setIsAuthenticated(true);
-
-        const decodedToken = jwtDecode(token);
-        //fetchUserInfo(decodedToken.sub);
     };
 
     const logout = () => {
         localStorage.removeItem('token');
-        localStorage.removeItem('userInfo');
         document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         setIsAuthenticated(false);
-        setUserInfo(null);
     };
 
     return (
