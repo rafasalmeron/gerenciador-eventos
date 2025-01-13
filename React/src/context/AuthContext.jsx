@@ -2,16 +2,12 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
-import { useToast } from "@/context/ToastContext";
-import api from "@/service/api";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [userInfo, setUserInfo] = useState(null);
     const router = useRouter();
-    const { addToast } = useToast();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -35,23 +31,6 @@ export const AuthProvider = ({ children }) => {
             router.push('/auth');
         }
     }, [router]);
-
-    // const fetchUserInfo = async (email) => {
-    //     try {
-    //         const response = await api.get(`/admins/${email}`);
-    //
-    //         if (response.status === 200) {
-    //             const data = response.data;
-    //             localStorage.setItem('userInfo', JSON.stringify(data));
-    //             setUserInfo(data);
-    //         } else {
-    //             throw new Error('Erro ao buscar informações do usuário');
-    //         }
-    //     } catch (error) {
-    //         console.error('Erro ao buscar informações do usuário:', error);
-    //         addToast(error.message, 'error');
-    //     }
-    // };
 
     const login = (token) => {
         localStorage.setItem('token', token);
