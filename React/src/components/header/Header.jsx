@@ -24,7 +24,7 @@ const Header = () => {
     };
 
     return (
-        <header className="w-full bg-gradient-to-r from-blue-700 to-blue-900 py-4 px-6 flex justify-between items-center relative">
+        <header className="w-full bg-gradient-to-r from-gray-700 to-gray-900 py-4 px-6 flex justify-between items-center relative">
             <Link
                 className="text-white text-2xl font-bold"
                 rel="preload"

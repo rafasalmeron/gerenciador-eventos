@@ -5,6 +5,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import api from '../services/api';
 import {jwtDecode} from 'jwt-decode';
 import {useToast} from "@/context/ToastContext";
+import {launchImageLibrary} from "react-native-image-picker";
 
 const EventosScreen = () => {
     const [eventos, setEventos] = useState([]);
@@ -16,9 +17,9 @@ const EventosScreen = () => {
     const [novoEvento, setNovoEvento] = useState({
         nome: '',
         data: '',
-        locallizacao: '',
+        localizacao: '',
         imagem: '',
-        admin: { id: null }
+        adminId: '',
     });
 
     useEffect(() => {
@@ -52,33 +53,39 @@ const EventosScreen = () => {
     }, []);
 
     const handleAddEvento = async () => {
-        const eventoFormatado = {
-            ...novoEvento,
-            data: novoEvento.data.split('-').reverse().join('/'),
-        };
+        const formData = new FormData();
+        formData.append('nome', novoEvento.nome);
+        formData.append('data', novoEvento.data.split('-').reverse().join('/'));
+        formData.append('localizacao', novoEvento.localizacao);
+        formData.append('adminId', novoEvento.adminId);
+        if (novoEvento.imagem) {
+            formData.append('file', novoEvento.imagem);
+        }
         try {
-            await api.post('/eventos', eventoFormatado);
+            await api.post('/eventos', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
             addToast('Evento criado com sucesso!', 'success');
             setShowModal(false);
+            setLoading(true);
             fetchEventos();
         } catch (error) {
-            addToast(`Erro ao criar evento. ${error.message}`, 'danger');
+            addToast('Erro ao criar evento.', 'error');
         }
     };
 
     const handleEditEvento = async () => {
-        const eventoFormatado = {
-            ...novoEvento,
-            data: novoEvento.data.split('-').reverse().join('/'),
-        };
+        const formData = new FormData();
+        formData.append('data', novoEvento.data.split('-').reverse().join('/'));
+        formData.append('localizacao', novoEvento.localizacao);
+        formData.append('adminId', novoEvento.adminId);
         try {
-            await api.put(`/eventos/${eventoEmEdicao.id}`, eventoFormatado);
+            await api.put(`/eventos/${eventoEmEdicao.id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
             addToast('Evento editado com sucesso!', 'success');
             setShowModal(false);
             setEventoEmEdicao(null);
+            setLoading(true);
             fetchEventos();
         } catch (error) {
-            addToast(`Erro ao editar evento. ${error.message}`, 'danger');
+            addToast('Erro ao editar evento.', 'error');
         }
     };
 
@@ -97,9 +104,8 @@ const EventosScreen = () => {
         setNovoEvento({
             nome: evento.nome,
             data: evento.data.split('/').reverse().join('-'),
-            locallizacao: evento.locallizacao,
+            localizacao: evento.localizacao,
             imagem: evento.imagem,
-            admin: evento.admin,
         });
         setShowModal(true);
     };
@@ -127,13 +133,46 @@ const EventosScreen = () => {
         );
     }
 
+    const getImageSrc = (imagemBase64) => {
+        const supportedFormats = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/gif'];
+        for (const format of supportedFormats) {
+            if (imagemBase64.includes(format.split('/')[1])) {
+                return `data:${format};base64,${imagemBase64}`;
+            }
+        }
+        return `data:image/png;base64,${imagemBase64}`;
+    };
+
+    const handleSelectImage = () => {
+        const options = {
+            mediaType: 'photo',
+            quality: 0.8,
+        };
+
+        launchImageLibrary(options, (response) => {
+            if (response.didCancel) {
+                console.log('Seleção de imagem cancelada.');
+            } else if (response.errorCode) {
+                console.log('Erro ao selecionar imagem:', response.errorMessage);
+                addToast(`Erro ao selecionar imagem: ${response.errorMessage}`, 'danger');
+            } else {
+                const selectedImage = response.assets[0];
+                setNovoEvento((prevState) => ({
+                    ...prevState,
+                    imagem: selectedImage.uri,
+                }));
+                addToast('Imagem selecionada com sucesso!', 'success');
+            }
+        });
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Eventos</Text>
             <TouchableOpacity
                 style={styles.button} onPress={() => {
                 setEventoEmEdicao(null);
-                setNovoEvento({nome: '', data: '', locallizacao: '', imagem: '', admin: {id: novoEvento.admin.id}});
+                setNovoEvento({nome: '', data: '', localizacao: '', imagem: '', admin: {id: novoEvento.admin.id}});
                 setShowModal(true);
             }}
             >
@@ -146,12 +185,12 @@ const EventosScreen = () => {
                     <View style={styles.evento}>
                         <Text style={styles.eventoNome}>{item.nome}</Text>
                         <Image
-                            source={{ uri: item.imagem }}
+                            source={{ uri: getImageSrc(item.imagem) }}
                             style={styles.eventoImagem}
                         />
                         <Text>Data: {item.data}</Text>
-                        <Text>Localização: {item.locallizacao}</Text>
-                        <Text>Criado por: {item.admin.nome}</Text>
+                        <Text>Localização: {item.localizacao}</Text>
+                        <Text>Criado por: {item.adminNome}</Text>
                         <View style={styles.eventoActions}>
                             <TouchableOpacity
                                 style={[styles.button, styles.secondaryButton]} onPress={() => openEditModal(item)}
@@ -207,18 +246,23 @@ const EventosScreen = () => {
                     <Text style={styles.label}>Localização</Text>
                     <TextInput
                         placeholder="Localização"
-                        value={novoEvento.locallizacao}
-                        onChangeText={(text) => setNovoEvento({ ...novoEvento, locallizacao: text })}
+                        value={novoEvento.localizacao}
+                        onChangeText={(text) => setNovoEvento({ ...novoEvento, localizacao: text })}
                         style={styles.input}
                     />
-                    <Text style={styles.label}>URL da Imagem</Text>
-                    <TextInput
-                        placeholder="URL da Imagem"
-                        value={novoEvento.imagem}
-                        onChangeText={(text) => setNovoEvento({ ...novoEvento, imagem: text })}
-                        style={styles.input}
-                        editable={!eventoEmEdicao}
-                    />
+                    <Text style={styles.label}>Imagem do Evento</Text>
+                    <TouchableOpacity style={styles.button} onPress={handleSelectImage}>
+                        <Text style={styles.buttonText}>Selecionar Imagem</Text>
+                    </TouchableOpacity>
+                    {novoEvento.imagem ? (
+                        <Image
+                            source={{ uri: novoEvento.imagem }}
+                            style={styles.eventoImagem}
+                        />
+                    ) : (
+                        <Text style={styles.placeholderText}>Nenhuma imagem selecionada</Text>
+                    )}
+
                     <View style={styles.modalActions}>
                         <TouchableOpacity
                             style={[styles.button, styles.secondaryButton]}
@@ -246,6 +290,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
+    },
+    placeholderText: {
+        fontSize: 14,
+        color: '#aaa',
+        textAlign: 'center',
+        marginTop: 8,
     },
     loadingContainer: {
         flex: 1,
